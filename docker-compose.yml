@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/usr/src/app
+
+  client:
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/usr/src/app
+    environment:
+      NEXT_PUBLIC_SERVER: ${NEXT_PUBLIC_SERVER}
+    depends_on:
+      - server
