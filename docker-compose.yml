@@ -17,6 +17,6 @@ services:
     volumes:
       - ./client:/usr/src/app
     environment:
-      NEXT_PUBLIC_SERVER: ${NEXT_PUBLIC_SERVER}
+      NEXT_PUBLIC_SERVER: http://localhost:3001
     depends_on:
       - server
