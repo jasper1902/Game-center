@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useMemo } from "react";
-import { Cell, useBattleshipStore } from "@/store/battleship";
+import { Cell, useBattleshipStore } from "@/store/game/battleship";
 import { useSocketStore } from "@/store/socket";
 
 // Props for GridCell component

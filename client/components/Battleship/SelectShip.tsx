@@ -7,7 +7,7 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { useBattleshipStore } from "@/store/battleship";
+import { useBattleshipStore } from "@/store/game/battleship";
 
 export type ShipType = {
   name: string;

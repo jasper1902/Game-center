@@ -1,5 +1,5 @@
 "use client";
-import { usePongStore } from "@/store/pong";
+import { usePongStore } from "@/store/game/pong";
 import { useEffect, useRef } from "react";
 import { Input, Button } from "@mui/material";
 import { ConnectedUsers } from "@/types/user";

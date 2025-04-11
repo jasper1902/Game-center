@@ -1,9 +1,14 @@
 import { Server, Socket } from "socket.io";
 import { DrawLine, Lobby, ConnectedUsers } from "../models/types";
+import {
+  handleTicTacToeMakeMove,
+  ticTacToeDisconnect,
+  ticTacToeResetGame,
+  ticTacToJoinRoom,
+} from "./games/tic-tac-toe";
 
 export let lobby: Lobby = [];
 export const connectedUsers: ConnectedUsers = {};
-
 export const handleSocketConnections = (io: Server) => {
   io.on("connection", (socket) => {
     handleJoinRoom(socket, io);
@@ -20,6 +25,11 @@ export const handleSocketConnections = (io: Server) => {
     handleAttack(socket);
     handleHit(socket);
     handlePlayerState(socket);
+
+    // Tic Tac Toe specific events
+    handleTicTacToeMakeMove(socket, io);
+
+    ticTacToeResetGame(socket, io);
   });
 };
 
@@ -38,6 +48,9 @@ function handleJoinRoom(socket: Socket, io: Server) {
         roomLobby.user.push(newUser);
       }
     }
+
+    ticTacToJoinRoom(game, roomId, socket, io);
+
     io.to(roomId).emit("update-user-list", connectedUsers[roomId]);
     socket.broadcast.emit("update-lobby-list", lobby);
     socket.to(roomId).emit("get-canvas-state");
@@ -46,7 +59,9 @@ function handleJoinRoom(socket: Socket, io: Server) {
 
 function handleDisconnect(socket: Socket, io: Server) {
   socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
+
+    ticTacToeDisconnect(socket);
+
     for (const roomId in connectedUsers) {
       const roomUsers = connectedUsers[roomId];
       const userIndex = roomUsers.findIndex((user) => user.id === socket.id);
@@ -72,7 +87,6 @@ function handleDisconnect(socket: Socket, io: Server) {
 
 function handleCanvasState(socket: Socket) {
   socket.on("canvas-state", (state, roomId) => {
-    console.log("received canvas state");
     socket.to(roomId).emit("canvas-state-from-server", state);
   });
 }

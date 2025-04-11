@@ -1,5 +1,5 @@
 import http from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import app from "./api";
 import { handleSocketConnections } from "./api/sockets/socketHandler";
 import dotenv from "dotenv";
@@ -12,7 +12,7 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
-  }
+  },
 });
 
 handleSocketConnections(io);

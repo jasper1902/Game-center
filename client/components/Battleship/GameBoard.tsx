@@ -4,7 +4,7 @@ import SelectShip, { ShipType } from "@/components/Battleship/SelectShip";
 import SelectOrientation from "@/components/Battleship/SelectVerticalOrHorizontal";
 import ColumnHeaders from "@/components/Battleship/ColumnHeaders";
 import GridCell from "@/components/Battleship/GridCell";
-import { Cell, useBattleshipStore } from "@/store/battleship";
+import { Cell, useBattleshipStore } from "@/store/game/battleship";
 import EnemyGrid from "./EnemyGrid";
 import Swal from "sweetalert2";
 import { useSocketStore } from "@/store/socket";

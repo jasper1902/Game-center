@@ -4,7 +4,7 @@ import { Button, Input } from "@mui/material";
 import Swal from "sweetalert2";
 import Head from "next/head";
 import GameBoard from "@/components/Battleship/GameBoard";
-import { useBattleshipStore } from "@/store/battleship";
+import { useBattleshipStore } from "@/store/game/battleship";
 import { ConnectedUsers } from "@/types/user";
 import { useSocketStore } from "@/store/socket";
 import Lobby from "@/components/Lobby";

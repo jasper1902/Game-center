@@ -12,7 +12,7 @@ import {
 } from "@/types/draw";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { useDrawStore } from "@/store/draw";
+import { useDrawStore } from "@/store/game/draw";
 import { ConnectedUsers } from "@/types/user";
 import { useSocketStore } from "@/store/socket";
 import Lobby from "@/components/Lobby";
@@ -41,12 +41,10 @@ const Draw = () => {
 
     socket?.on("get-canvas-state", () => {
       if (!canvasRef.current?.toDataURL()) return;
-      console.log("sending canvas state");
       socket?.emit("canvas-state", canvasRef.current.toDataURL(), roomId);
     });
 
     socket?.on("canvas-state-from-server", (state: string) => {
-      console.log("I received the state");
       const img = new Image();
       img.src = state;
       img.onload = () => {
@@ -57,7 +55,7 @@ const Draw = () => {
     socket?.on(
       "draw-line",
       ({ prevPoint, currentPoint, color, lineWidth }: DrawLineProps) => {
-        if (!ctx) return console.log("no ctx here");
+        if (!ctx) return
         drawLine({ prevPoint, currentPoint, ctx, color, lineWidth });
       }
     );

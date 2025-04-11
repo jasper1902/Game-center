@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Cell, useBattleshipStore } from "@/store/battleship";
+import { Cell, useBattleshipStore } from "@/store/game/battleship";
 
 interface GridCellProps {
   rowIndex: number;
