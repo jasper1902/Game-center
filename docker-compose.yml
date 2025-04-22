@@ -16,7 +16,7 @@ services:
       - "3000:3000"
     volumes:
       - ./client:/usr/src/app
-    environment:
-      NEXT_PUBLIC_SERVER: http://localhost:3001
+    env_file:
+      - ./client/.env
     depends_on:
       - server

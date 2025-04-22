@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect, Fragment } from "react";
 import { Button, SelectChangeEvent } from "@mui/material";
-import SelectShip, { ShipType } from "@/components/Battleship/SelectShip";
-import SelectOrientation from "@/components/Battleship/SelectVerticalOrHorizontal";
-import ColumnHeaders from "@/components/Battleship/ColumnHeaders";
-import GridCell from "@/components/Battleship/GridCell";
+import SelectShip, { ShipType } from "@/app/battleship/SelectShip";
+import SelectOrientation from "@/app/battleship/SelectVerticalOrHorizontal";
+import ColumnHeaders from "@/app/battleship/ColumnHeaders";
+import GridCell from "@/app/battleship/GridCell";
 import { Cell, useBattleshipStore } from "@/store/game/battleship";
 import EnemyGrid from "./EnemyGrid";
 import Swal from "sweetalert2";
@@ -175,10 +175,10 @@ const GameBoard: React.FC = () => {
                 if (gameState === "READY") {
                   setGameState("WAIT");
                   if (otherPlayerState === "READY") {
-                    socket?.emit("player-state", roomId, "STARTED");
+                    socket?.emit("battleship-player-state", roomId, "STARTED");
                     setGameState("STARTED");
                   } else if (otherPlayerState === "PENDING") {
-                    socket?.emit("player-state", roomId, "READY");
+                    socket?.emit("battleship-player-state", roomId, "READY");
                   }
                 }
               }}

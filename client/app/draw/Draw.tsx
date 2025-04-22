@@ -22,16 +22,8 @@ const Draw = () => {
   const { color, setColor, cursors, setCursors, lineWidth, setLineWidth } =
     useDrawStore();
 
-  const {
-    username,
-    setUsername,
-    roomId,
-    joinRoomState,
-    setJoinRoomState,
-    userList,
-    setUserList,
-    socket,
-  } = useSocketStore();
+  const { username, roomId, joinRoomState, userList, setUserList, socket } =
+    useSocketStore();
 
   const { canvasRef, onMouseDown, clear } = useDraw(createLine);
   const cursorCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,12 +31,12 @@ const Draw = () => {
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
 
-    socket?.on("get-canvas-state", () => {
+    socket?.on("draw-get-canvas-state", () => {
       if (!canvasRef.current?.toDataURL()) return;
-      socket?.emit("canvas-state", canvasRef.current.toDataURL(), roomId);
+      socket?.emit("draw-canvas-state", canvasRef.current.toDataURL(), roomId);
     });
 
-    socket?.on("canvas-state-from-server", (state: string) => {
+    socket?.on("draw-canvas-state-from-server", (state: string) => {
       const img = new Image();
       img.src = state;
       img.onload = () => {
@@ -55,7 +47,7 @@ const Draw = () => {
     socket?.on(
       "draw-line",
       ({ prevPoint, currentPoint, color, lineWidth }: DrawLineProps) => {
-        if (!ctx) return
+        if (!ctx) return;
         drawLine({ prevPoint, currentPoint, ctx, color, lineWidth });
       }
     );
@@ -104,7 +96,7 @@ const Draw = () => {
       setCursors(newCursors);
     });
 
-    socket?.on("clear", clear);
+    socket?.on("draw-clear", clear);
 
     socket?.on("kick", async (message: string) => {
       await Swal.fire({
@@ -117,10 +109,10 @@ const Draw = () => {
 
     return () => {
       socket?.off("draw-line");
-      socket?.off("get-canvas-state");
-      socket?.off("canvas-state-from-server");
+      socket?.off("draw-get-canvas-state");
+      socket?.off("draw-canvas-state-from-server");
       socket?.off("draw-cursor");
-      socket?.off("clear");
+      socket?.off("draw-clear");
       socket?.off("update-user-list");
       socket?.off("kick");
     };
@@ -183,30 +175,12 @@ const Draw = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursors]);
 
-  const joinRoom = (id: string) => {
-    const usernamePattern: RegExp =
-      /^(?=.*[a-zA-Zก-ฮ0-1])[a-zA-Zก-ฮ0-1!@#$%^&*()-=_+{}\[\]:;"'<>,.?/|\\]{3,32}$/;
-    const roomIdPattern: RegExp = /^[a-zA-Z0-9]+$/;
-
-    if (!usernamePattern.test(username)) {
-      alert("ชื่อผู้ใช้ไม่ถูกต้อง");
-      return;
-    }
-
-    if (!roomIdPattern.test(id ?? roomId)) {
-      alert("รหัสห้องไม่ถูกต้อง");
-      return;
-    }
-    socket?.emit("join-room", id ?? roomId, username, "DRAW");
-    setJoinRoomState(true);
-  };
-
   return (
     <div className="w-screen h-screen bg-white flex justify-center items-center">
       {!joinRoomState ? (
         <>
           <div className="flex flex-col gap-10 pr-10">
-            <Lobby joinRoom={joinRoom} game="DRAW" maxPlayers={999} />
+            <Lobby game="DRAW" maxPlayers={999} />
           </div>
         </>
       ) : (
@@ -234,7 +208,7 @@ const Draw = () => {
             />
             <Button
               variant="outlined"
-              onClick={() => socket?.emit("clear", roomId)}
+              onClick={() => socket?.emit("draw-clear", roomId)}
             >
               Clear canvas
             </Button>

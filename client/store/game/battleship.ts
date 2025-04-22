@@ -1,4 +1,4 @@
-import { ShipType } from "@/components/Battleship/SelectShip";
+import { ShipType } from "@/app/battleship/SelectShip";
 
 import { create } from "zustand";
 

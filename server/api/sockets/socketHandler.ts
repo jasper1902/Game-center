@@ -13,7 +13,13 @@ import {
   handleDrawCursor,
   handleDrawLine,
 } from "./games/draw";
-import { handlePongBall, handlePongGameStatus, handlePongPaddle, handlePongScore } from "./games/pong";
+import {
+  handlePongBall,
+  handlePongGameStatus,
+  handlePongPaddle,
+  handlePongScore,
+} from "./games/pong";
+import { connectFourReset, connectFourUpdateBoard, dropPiece } from "./games/connect-four";
 
 export let lobby: Lobby = [];
 export const connectedUsers: ConnectedUsers = {};
@@ -43,6 +49,11 @@ export const handleSocketConnections = (io: Server) => {
     // Tic Tac Toe specific events
     handleTicTacToeMakeMove(socket, io);
     ticTacToeResetGame(socket, io);
+
+    // connect four specific events
+    dropPiece(socket, io);
+    connectFourReset(socket, io);
+    connectFourUpdateBoard(socket, io);
   });
 };
 
@@ -66,7 +77,7 @@ function handleJoinRoom(socket: Socket, io: Server) {
 
     io.to(roomId).emit("update-user-list", connectedUsers[roomId]);
     socket.broadcast.emit("update-lobby-list", lobby);
-    socket.to(roomId).emit("get-canvas-state");
+    socket.to(roomId).emit("draw-get-canvas-state");
   });
 }
 

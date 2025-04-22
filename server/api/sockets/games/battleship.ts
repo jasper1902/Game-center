@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 
 export function handleAttack(socket: Socket) {
   socket.on(
-    "attack",
+    "battleship-attack",
     (
       roomId: string,
       data: {
@@ -13,7 +13,7 @@ export function handleAttack(socket: Socket) {
       }
     ) => {
       const { colIndex, rowIndex, username, hit } = data;
-      handleEvent(socket, "attacked", roomId, {
+      handleEvent(socket, "battleship-attacked", roomId, {
         colIndex,
         rowIndex,
         username,
@@ -25,7 +25,7 @@ export function handleAttack(socket: Socket) {
 
 export function handleHit(socket: Socket) {
   socket.on(
-    "hit",
+    "battleship-hit",
     (
       roomId: string,
       data: {
@@ -36,14 +36,14 @@ export function handleHit(socket: Socket) {
       }
     ) => {
       const { colIndex, rowIndex, hit, shipName } = data;
-      handleEvent(socket, "hit", roomId, { colIndex, rowIndex, hit, shipName });
+      handleEvent(socket, "battleship-hit", roomId, { colIndex, rowIndex, hit, shipName });
     }
   );
 }
 
 export function handlePlayerState(socket: Socket) {
-  socket.on("player-state", (roomId: string, state: string) => {
-    handleEvent(socket, "player-state", roomId, state);
+  socket.on("battleship-player-state", (roomId: string, state: string) => {
+    handleEvent(socket, "battleship-player-state", roomId, state);
   });
 }
 

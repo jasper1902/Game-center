@@ -4,7 +4,11 @@ import { useSocketStore } from "@/store/socket";
 import Lobby from "@/components/Lobby";
 import { ConnectedUsers } from "@/types/user";
 import Swal from "sweetalert2";
-import { CellValue, GameResult, useticTacToeStore } from "@/store/game/tic-tac-toe";
+import {
+  CellValue,
+  GameResult,
+  useticTacToeStore,
+} from "@/store/game/tic-tac-toe";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -22,15 +26,8 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 export default function TicTacToe() {
-  const {
-    socket,
-    roomId,
-    username,
-    setUserList,
-    setJoinRoomState,
-    joinRoomState,
-    userList,
-  } = useSocketStore();
+  const { socket, roomId, username, setUserList, joinRoomState, userList } =
+    useSocketStore();
   const {
     playerSymbol,
     board,
@@ -49,65 +46,58 @@ export default function TicTacToe() {
   } = useticTacToeStore();
 
   useEffect(() => {
-    const handleUpdateUserList = (userList: ConnectedUsers[]) => {
+    const handleUpdateUserList = (userList: ConnectedUsers[]) =>
       setUserList(userList);
-    };
-
-    if (socket) {
-      socket.on("update-user-list", handleUpdateUserList);
-
-      socket.on("kick", handleKick);
-    }
-
-    socket?.on("assignSymbol", (symbol: "X" | "O") => {
+    const handleSetplayerSymbol = (symbol: "X" | "O") =>
       setPlayerSymbol(symbol);
-    });
-
-    socket?.on("gameStart", (initialBoard: CellValue[]) => {
+    const handleGameStart = (initialBoard: CellValue[]) => {
       setBoard(initialBoard);
       setGameStatus("playing");
-    });
+    };
 
-    socket?.on(
-      "moveMade",
-      ({
-        board,
-        currentPlayer,
-      }: {
-        board: CellValue[];
-        currentPlayer: "X" | "O";
-      }) => {
-        setBoard(board);
-        setCurrentPlayer(currentPlayer);
-      }
-    );
+    const handleMakeMove = ({
+      board,
+      currentPlayer,
+    }: {
+      board: CellValue[];
+      currentPlayer: "X" | "O";
+    }) => {
+      setBoard(board);
+      setCurrentPlayer(currentPlayer);
+    };
 
-    socket?.on(
-      "gameOver",
-      ({ winner, board }: { winner: GameResult; board: CellValue[] }) => {
-        setBoard(board);
-        setGameStatus("finished");
-        setWinner(winner);
-      }
-    );
+    const handleGameOver = ({
+      winner,
+      board,
+    }: {
+      winner: GameResult;
+      board: CellValue[];
+    }) => {
+      setBoard(board);
+      setGameStatus("finished");
+      setWinner(winner);
+    };
 
-    socket?.on("roomFull", () => {
-      alert("Room is full! Please try another room.");
-    });
-
-    socket?.on("TicTacToe-gameReset", () => {
+    const handleGameReset = () => {
       setCurrentPlayer("X");
       setWinner(null);
       setWinningLine(null);
-    });
+    };
+
+    socket?.on("update-user-list", handleUpdateUserList);
+    socket?.on("kick", handleKick);
+    socket?.on("TicTacToe-assignSymbol", handleSetplayerSymbol);
+    socket?.on("TicTacToe-gameStart", handleGameStart);
+    socket?.on("TicTacToe-moveMade", handleMakeMove);
+    socket?.on("TicTacToe-gameOver", handleGameOver);
+    socket?.on("TicTacToe-gameReset", handleGameReset);
 
     return () => {
-      socket?.off("assignSymbol");
-      socket?.off("gameStart");
-      socket?.off("moveMade");
-      socket?.off("gameOver");
-      socket?.off("roomFull");
-      socket?.off("TicTacToe-gameReset");
+      socket?.off("TicTacToe-assignSymbol", handleSetplayerSymbol);
+      socket?.off("TicTacToe-gameStart", handleGameStart);
+      socket?.off("TicTacToe-moveMade", handleMakeMove);
+      socket?.off("TicTacToe-gameOver", handleGameOver);
+      socket?.off("TicTacToe-gameReset", handleGameReset);
       socket?.off("update-user-list", handleUpdateUserList);
       socket?.off("kick", handleKick);
     };
@@ -153,7 +143,7 @@ export default function TicTacToe() {
       playerSymbol === currentPlayer &&
       !board[cellIndex]
     ) {
-      socket.emit("makeMove", {
+      socket.emit("TicTacToe-makeMove", {
         roomId,
         cellIndex,
         symbol: playerSymbol,
@@ -185,28 +175,10 @@ export default function TicTacToe() {
     return null;
   }
 
-  const joinRoom = (id: string) => {
-    const usernamePattern: RegExp =
-      /^(?=.*[a-zA-Zก-ฮ0-1])[a-zA-Zก-ฮ0-1!@#$%^&*()-=_+{}\[\]:;"'<>,.?/|\\]{3,32}$/;
-    const roomIdPattern: RegExp = /^[a-zA-Z0-9]+$/;
-
-    if (!usernamePattern.test(username)) {
-      alert("ชื่อผู้ใช้ไม่ถูกต้อง");
-      return;
-    }
-
-    if (!roomIdPattern.test(id ?? roomId)) {
-      alert("รหัสห้องไม่ถูกต้อง");
-      return;
-    }
-    socket?.emit("join-room", id ?? roomId, username, "TIC TAC TOE");
-    setJoinRoomState(true);
-  };
-
   const resetGame = () => {
     if (socket && roomId) {
       socket?.emit("TicTacToe-gameReset", roomId);
-      socket?.emit("gameStart", Array(9).fill(null));
+      socket?.emit("TicTacToe-gameStart", Array(9).fill(null));
       setBoard(Array(9).fill(null));
       setCurrentPlayer("X");
       setGameStatus("playing");
@@ -235,7 +207,7 @@ export default function TicTacToe() {
       {!joinRoomState ? (
         <>
           <div className="flex flex-col gap-10 pr-10">
-            <Lobby joinRoom={joinRoom} game="TIC TAC TOE" maxPlayers={2} />
+            <Lobby game="TIC TAC TOE" maxPlayers={2} />
           </div>
         </>
       ) : (

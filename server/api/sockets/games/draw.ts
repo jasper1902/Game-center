@@ -2,8 +2,8 @@ import { Server, Socket } from "socket.io";
 import { DrawLine } from "../../models/types";
 
 export function handleCanvasState(socket: Socket) {
-  socket.on("canvas-state", (state, roomId) => {
-    socket.to(roomId).emit("canvas-state-from-server", state);
+  socket.on("draw-canvas-state", (state, roomId) => {
+    socket.to(roomId).emit("draw-canvas-state-from-server", state);
   });
 }
 
@@ -31,7 +31,7 @@ export function handleDrawCursor(socket: Socket) {
 }
 
 export function handleClear(socket: Socket, io: Server) {
-  socket.on("clear", (roomId) => {
-    io.in(roomId).emit("clear");
+  socket.on("draw-clear", (roomId) => {
+    io.in(roomId).emit("draw-clear");
   });
 }

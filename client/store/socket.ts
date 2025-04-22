@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { ConnectedUsers } from "@/types/user";
 import { Lobby } from "@/types/room";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_SERVER;
 
@@ -40,6 +41,7 @@ type Store = {
   setCurrentPage: (page: number) => void;
   fetchLobbyData: () => void;
   disconnectSocket: () => void;
+  handleKick: (message: string) => Promise<void>;
 };
 
 export const useSocketStore = create<Store>()((set, get) => ({
@@ -74,4 +76,12 @@ export const useSocketStore = create<Store>()((set, get) => ({
     const socket = get().socket;
     socket?.disconnect();
   },
+  handleKick: async (message: string) => {
+    await Swal.fire({
+      title: message,
+      confirmButtonText: "Ok",
+    });
+    location.reload();
+  },
+  
 }));

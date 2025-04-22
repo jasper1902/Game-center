@@ -1,13 +1,12 @@
 "use client";
 import { useEffect } from "react";
-import { Button, Input } from "@mui/material";
-import Swal from "sweetalert2";
 import Head from "next/head";
-import GameBoard from "@/components/Battleship/GameBoard";
+import GameBoard from "@/app/battleship/GameBoard";
 import { useBattleshipStore } from "@/store/game/battleship";
 import { ConnectedUsers } from "@/types/user";
 import { useSocketStore } from "@/store/socket";
 import Lobby from "@/components/Lobby";
+import { Button } from "@/components/ui/button";
 
 const Battleship = () => {
   const { setPlayerTurn, setOtherPlayerState, setGameState, gameState } =
@@ -18,40 +17,40 @@ const Battleship = () => {
     joinRoomState,
     username,
     roomId,
-    setJoinRoomState,
     setUserList,
     socket,
+    handleKick,
   } = useSocketStore();
 
   useEffect(() => {
-    const handleUpdateUserList = (userList: ConnectedUsers[]) => {
+    const handleUpdateUserList = (userList: ConnectedUsers[]) =>
       setUserList(userList);
-    };
-
-    const handleKick = async (message: string) => {
-      await Swal.fire({
-        title: message,
-        confirmButtonText: "Ok",
-      });
-      location.reload();
+    const handleUpdateState = (state: "END" | "READY" | "STARTED") => {
+      setOtherPlayerState(state);
+      if (state !== "READY") {
+        setGameState(state);
+      }
     };
 
     if (socket) {
       socket.on("update-user-list", handleUpdateUserList);
-      socket.on("player-state", (state: "END" | "READY" | "STARTED") => {
-        setOtherPlayerState(state);
-        if (state !== "READY") {
-          setGameState(state);
-        }
-      });
+      socket.on("battleship-player-state", handleUpdateState);
       socket.on("kick", handleKick);
 
       return () => {
         socket.off("update-user-list", handleUpdateUserList);
         socket.off("kick", handleKick);
+        socket.off("battleship-player-state", handleUpdateState);
       };
     }
-  }, [gameState, setGameState, setOtherPlayerState, setUserList, socket]);
+  }, [
+    gameState,
+    handleKick,
+    setGameState,
+    setOtherPlayerState,
+    setUserList,
+    socket,
+  ]);
 
   useEffect(() => {
     if (
@@ -62,33 +61,12 @@ const Battleship = () => {
     }
   }, [joinRoomState, setPlayerTurn, userList, username]);
 
-  const joinRoom = (id: string) => {
-    if (!socket) return;
-
-    const usernamePattern =
-      /^(?=.*[a-zA-Zก-ฮ0-1])[a-zA-Zก-ฮ0-1!@#$%^&*()-=_+{}\[\]:;\"'<>,.?/|\\]{3,32}$/;
-    const roomIdPattern = /^[a-zA-Z0-9]+$/;
-
-    if (!usernamePattern.test(username)) {
-      alert("ชื่อผู้ใช้ไม่ถูกต้อง");
-      return;
-    }
-
-    if (!roomIdPattern.test(id ?? roomId)) {
-      alert("รหัสห้องไม่ถูกต้อง");
-      return;
-    }
-
-    socket.emit("join-room", id ?? roomId, username, "BATTLESHIP");
-    setJoinRoomState(true);
-  };
-
   return (
     <div className="w-screen h-screen bg-white flex justify-center items-center">
       {!joinRoomState ? (
         <>
           <div className="flex flex-col gap-10 pr-10">
-            <Lobby joinRoom={joinRoom} game="BATTLESHIP" maxPlayers={2} />
+            <Lobby game="BATTLESHIP" maxPlayers={2} />
           </div>
         </>
       ) : (

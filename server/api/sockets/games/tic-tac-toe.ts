@@ -51,7 +51,7 @@ function checkWinner(board: CellValue[]): GameResult {
 }
 
 export function handleTicTacToeMakeMove(socket: Socket, io: Server) {
-  socket.on("makeMove", ({ roomId, cellIndex, symbol }: MakeMoveData) => {
+  socket.on("TicTacToe-makeMove", ({ roomId, cellIndex, symbol }: MakeMoveData) => {
     const room = rooms[roomId];
     if (!room || room.status !== "playing" || room.currentPlayer !== symbol) {
       return;
@@ -64,18 +64,18 @@ export function handleTicTacToeMakeMove(socket: Socket, io: Server) {
       const winner = checkWinner(room.board);
       if (winner) {
         room.status = "finished";
-        io.to(roomId).emit("gameOver", {
+        io.to(roomId).emit("TicTacToe-gameOver", {
           winner,
           board: room.board,
         } as GameOverData);
       } else if (room.board.every((cell) => cell !== null)) {
         room.status = "finished";
-        io.to(roomId).emit("gameOver", {
+        io.to(roomId).emit("TicTacToe-gameOver", {
           winner: "draw",
           board: room.board,
         } as GameOverData);
       } else {
-        io.to(roomId).emit("moveMade", {
+        io.to(roomId).emit("TicTacToe-moveMade", {
           board: room.board,
           currentPlayer: room.currentPlayer,
         } as MoveMadeData);
@@ -101,7 +101,7 @@ export function ticTacToJoinRoom(
     }
 
     if (rooms[roomId].players.length >= MAX_PLAYERS_PER_ROOM) {
-      socket.emit("roomFull");
+      socket.emit("TicTacToe-roomFull");
       return;
     }
 
@@ -109,11 +109,11 @@ export function ticTacToJoinRoom(
     socket.join(roomId);
 
     const playerSymbol = rooms[roomId].players.length === 1 ? "X" : "O";
-    socket.emit("assignSymbol", playerSymbol);
+    socket.emit("TicTacToe-assignSymbol", playerSymbol);
 
     if (rooms[roomId].players.length === MAX_PLAYERS_PER_ROOM) {
       rooms[roomId].status = "playing";
-      io.to(roomId).emit("gameStart", rooms[roomId].board);
+      io.to(roomId).emit("TicTacToe-gameStart", rooms[roomId].board);
     }
   }
 }
@@ -125,9 +125,9 @@ export function ticTacToeResetGame(socket: Socket, io: Server) {
       rooms[roomId].currentPlayer = "X";
       rooms[roomId].status = "playing";
       socket.emit("TicTacToe-gameReset");
-      socket.emit("gameStart", rooms[roomId].board);
+      socket.emit("TicTacToe-gameStart", rooms[roomId].board);
       socket.to(roomId).emit("TicTacToe-gameReset");
-      socket.to(roomId).emit("gameStart", rooms[roomId].board);
+      socket.to(roomId).emit("TicTacToe-gameStart", rooms[roomId].board);
     }
   });
 }

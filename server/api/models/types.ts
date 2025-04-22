@@ -8,7 +8,7 @@ export type DrawLine = {
 };
 
 export type Lobby = {
-  game: "DRAW" | "PONG" | "BATTLESHIP" | "TIC TAC TOE";
+  game: "DRAW" | "PONG" | "BATTLESHIP" | "TIC TAC TOE" | "CONNECT 4";
   roomId: string;
   host: string;
   user: { id: string; username: string; host: boolean }[];

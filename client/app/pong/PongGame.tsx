@@ -389,31 +389,12 @@ const PongGame = () => {
     };
   }, [currentPlayer, setGameStatus, setPlayer, setUserList, socket, username]);
 
-  const joinRoom = (id: string) => {
-    const usernamePattern =
-      /^(?=.*[a-zA-Zก-ฮ0-1])[a-zA-Zก-ฮ0-1!@#$%^&*()-=_+{}\[\]:;"'<>,.?/|\\]{3,32}$/;
-    const roomIdPattern = /^[a-zA-Z0-9]+$/;
-
-    if (!usernamePattern.test(username)) {
-      alert("ชื่อผู้ใช้ไม่ถูกต้อง");
-      return;
-    }
-
-    if (!roomIdPattern.test(id ?? roomId)) {
-      alert("รหัสห้องไม่ถูกต้อง");
-      return;
-    }
-
-    socket?.emit("join-room", id ?? roomId, username, "PONG");
-    setJoinRoomState(true);
-  };
-
   return (
     <div className="w-screen h-screen bg-white flex justify-center items-center">
       {!joinRoomState ? (
         <>
           <div className="flex flex-col gap-10 pr-10">
-            <Lobby joinRoom={joinRoom} game="PONG" maxPlayers={2} />
+            <Lobby game="PONG" maxPlayers={2} />
           </div>
         </>
       ) : (

@@ -18,9 +18,7 @@ const EnemyGridCell: React.FC<GridCellProps> = ({
   const {
     gameState,
     setBoard,
-
     board,
-
     isPlayerTurn,
     setPlayerTurn,
     getShipColorClassName,
@@ -54,7 +52,7 @@ const EnemyGridCell: React.FC<GridCellProps> = ({
       const isHit = board[rowIndex][colIndex].ship.hasShip;
       if (isHit) {
         const shipName = board[rowIndex][colIndex].ship.name;
-        socket?.emit("hit", roomId, { colIndex, rowIndex, isHit, shipName });
+        socket?.emit("battleship-hit", roomId, { colIndex, rowIndex, isHit, shipName });
       }
     },
     [board, roomId, setBoard, socket, setPlayerTurn]
@@ -88,11 +86,11 @@ const EnemyGridCell: React.FC<GridCellProps> = ({
   );
 
   useEffect(() => {
-    socket?.on("attacked", handleAttacked);
-    socket?.on("hit", handleHit);
+    socket?.on("battleship-attacked", handleAttacked);
+    socket?.on("battleship-hit", handleHit);
     return () => {
-      socket?.off("attacked", handleAttacked);
-      socket?.off("hit", handleHit);
+      socket?.off("battleship-attacked", handleAttacked);
+      socket?.off("battleship-hit", handleHit);
     };
   }, [socket, handleAttacked, handleHit]);
 
@@ -110,7 +108,7 @@ const EnemyGridCell: React.FC<GridCellProps> = ({
         };
         return newBoard;
       });
-      socket?.emit("attack", roomId, { colIndex, rowIndex, username });
+      socket?.emit("battleship-attack", roomId, { colIndex, rowIndex, username });
       setPlayerTurn(false);
     }
   }, [
